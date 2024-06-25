@@ -11,3 +11,8 @@ elif sales < expenses:
 else:
     print("My business is break even")
 
+# expression using shothand if
+x = 15
+y = 10
+op = "+"
+result = x + y if (op == "+") else x - y
