@@ -75,7 +75,7 @@ mobile_number_2 = input("Mobile Number :\n")
 user1 = User(name_1, username_1, pwd_1, mobile_number_1)
 user2 = User(name_2, username_2, pwd_2, mobile_number_2)
 
-if user1 == user2:
+if user1.mobile_number == user2.mobile_number:
     print("User 1 and User 2 are equal")
 
 else:
