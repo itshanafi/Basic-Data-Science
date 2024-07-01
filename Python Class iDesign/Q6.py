@@ -77,3 +77,37 @@ class Hall:
         total_cost = days * self.cost_per_day
         print(f"Total cost {total_cost}")
         return total_cost
+    
+
+###############################################################################
+
+# Main.py
+import datetime,time
+from Hall import Hall
+
+d1=input("Enter Start time\n")
+d2=input("Enter the End time\n")
+cost=int(input("Enter the cost per day\n"))
+
+h=Hall(d1,d2,cost)
+total_cost = h.noDays()
+
+# Hall.py
+class Hall:
+    def __init__(self,start_date,end_date,cost_per_day):
+        self.start_date=datetime.strptime(start_date,"%b %d %Y")
+        self.end_date=datetime.strptime(end_date,"%b %d %Y")
+        self.cost_per_day=int(cost_per_day)
+
+        
+    def noDays(self):
+        delta = self.end_date - self.start_date
+        num_days = delta.days
+        total_cost = self.cost(num_days)  # calling cost method to calculate total cost
+        print(f"Total number of days {num_days}")
+        return total_cost
+
+    def cost(self,d):
+        total_cost = d * self.cost_per_day
+        print(f"Total cost {total_cost}")
+        return total_cost
