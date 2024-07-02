@@ -73,8 +73,8 @@ if __name__ == '__main__':
     main()
 '''
 
-
-class CustomException(Exception):
+'''
+class CustomError(Exception):
     pass
 
 def check_password(password):
@@ -83,9 +83,9 @@ def check_password(password):
     has_digit = any(c.isdigit() for c in password)
 
     if has_lower and has_upper and has_digit:
-        print("Password is valid.")
+        pass
     else:
-        raise CustomException("CustomException: Invalid Password Exception")
+        raise CustomError("CustomError: Invalid Password Exception")
 
 if __name__ == "__main__":
     try:
@@ -97,5 +97,33 @@ if __name__ == "__main__":
         print(f"Employee Username: {username}")
         print(f"Password: {password}")
         
-    except CustomException as e:
+    except CustomError as e:
         print(e)
+'''
+
+username = input("Enter the username\n")
+password = input("Enter the password\n")
+
+class CustomError(Exception):
+    def __init__(self, message):
+        super().__init__(message)
+
+low_case = 0
+up_case = 0
+num_case = 0
+
+for i in password:
+    if i.islower():
+        low_case += 1
+    if i.isupper():
+        up_case += 1
+    if i.isdecimal():
+        num_case += 1
+
+try:
+    if low_case >= 1 and up_case >= 1 and num_case >=1:
+        print(f"Employee Username: {username}\nPassword: {password}")
+    else:
+        raise CustomError
+except:
+    print("CustomException: Invalid Password Exception")

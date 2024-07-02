@@ -22,7 +22,7 @@ try:
     sum = 0
     for i in range(n):
         sum += numlist[i]
-    print("Sum = ",sum)
+    print("Sum =",sum)
 
 except IndexError:
     print("Index Value out of range")
