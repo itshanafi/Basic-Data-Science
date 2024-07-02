@@ -1,6 +1,6 @@
 # Parse and evaluate simple math word problems returning the answer as an integer.
 # What is 5?    -> 5
-# What is 5 plus 13?    -> 13
+# What is 5 plus 13?    -> 18
 # What is 7 minus 5?    -> 2
 # What is 6 multiplied by 4?     -> 24
 # What is 25 divided by 5?       -> 5
