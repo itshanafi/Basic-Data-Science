@@ -24,7 +24,7 @@ if __name__ == '__main__':
 
 class IsogramChecker:
     def is_isogram(self, word):
-        word = word.lower().replace(" ", "").replace("-", "").replace("_", "")
+        word = word.lower().replace(" ", "").replace("-", "").replace("_", "") # remove all the spaces, dashes and underscore in the string
         if len(word) == len(set(word)):
             return "It is isogram"
         else:
