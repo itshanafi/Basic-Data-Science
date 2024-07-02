@@ -17,7 +17,7 @@ class CalAreaSquare(Shape):
         self.side = side
 
     def area(self):
-        print("Side of Square :", self.side)
+        print("Length of Square :", self.side)
         return self.side ** 2
 
 class CalAreaRectangle(Shape):
@@ -102,7 +102,7 @@ class CalAreaSquare(Shape):
         self.side = side
     
     def display_parameters(self):
-        print(f"Side of Square: {self.side}")
+        print(f"Length of Square : {self.side}")
     
     def area(self):
         return self.side ** 2
