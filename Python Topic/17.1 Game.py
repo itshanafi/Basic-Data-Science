@@ -1,24 +1,37 @@
 class Pokemon:
-    def __init__(self, name, type, hp, attack, defense, speed):
+    def __init__(self, name, ptype, hp, attack, defense, speed):
         self.name = name
-        self.type = type
+        self.type = ptype
         self.hp = hp
         self.attack = attack
         self.defense = defense
         self.speed = speed
 
+    def weakness(self):
+        weaknesses = {
+            "Fire": ["Water"],
+            "Water": ["Grass"],
+            "Grass": ["Fire"],
+            "Electric": ["Ground"],
+            "Ground": ["Electric"],
+            "Psychic": ["Dark"],
+            "Dark": ["Psychic"],
+            "Fighting": ["Flying"],
+            "Flying": ["Fighting"]
+        }
+        return weaknesses.get(self.type, [])
+
     def do_move(self):
         print("I'm doing a move!")
 
-    def do_attack(self):
+    def do_attack(self, opponent):
         print("I'm attacking")
 
-# Modify the Type class to handle type effectiveness
 class Type(Pokemon):
     def __init__(self, name, ptype, hp, attack, defense, speed, weakness, strengthen):
         super().__init__(name, ptype, hp, attack, defense, speed)
-        self.weakness = weakness
-        self.strengthen = strengthen
+        self.weakness = weakness.split(",") if weakness else []
+        self.strengthen = strengthen.split(",") if strengthen else []
 
     def do_attack(self, opponent):
         base_damage = self.attack
@@ -27,14 +40,13 @@ class Type(Pokemon):
             effectiveness *= 2.0
         elif opponent.type in self.strengthen:
             effectiveness *= 0.5
-        damage = int(base_damage * effectiveness) - opponent.defense
+        damage = int((base_damage * effectiveness) - opponent.defense)
         if damage < 0:
             damage = 0
         opponent.hp -= damage
         print(f"{self.name} attacks {opponent.name} and deals {damage} damage!")
-        print(f"{opponent.name} has {opponent.hp} HP left.")
+        print(f"{opponent.name} has {max(opponent.hp, 0)} HP left.")
 
-# Modify the Battle class to utilize type effectiveness
 class Battle:
     def __init__(self, pokemon_list):
         self.pokemon_list = pokemon_list
@@ -67,8 +79,6 @@ class Battle:
         alive_pokemons = [p for p in self.pokemon_list if p.hp > 0]
         return len(alive_pokemons) <= 1
 
-
-
 def main():
     print("Welcome to the Pokemon Battle Simulator!\n")
     
@@ -81,7 +91,7 @@ def main():
         attack = int(input("Enter the attack of the Pokemon: "))
         defense = int(input("Enter the defense of the Pokemon: "))
         speed = int(input("Enter the speed of the Pokemon: "))
-        weakness = input("Enter the weakness of the Pokemon: ")
+        weakness = input("Enter the weakness of the Pokemon: ").capitalize()
         strengthen = input("Enter the strengthen of the Pokemon: ")
         pokemon.append(Type(name, ptype, hp, attack, defense, speed, weakness, strengthen))
     
