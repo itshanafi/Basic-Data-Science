@@ -68,6 +68,8 @@ def read_file(filename):
     else:
         print(f"File '{filename}' does not exist.")
 
+import os
+
 def edit_file(filename):
     if os.path.exists(filename):
         try:
@@ -82,18 +84,19 @@ def edit_file(filename):
                         product, quantity, price, total = line.split("|")
                         print(f"{product.strip():40}{quantity.strip():>20}{price.strip():>20}{total.strip():>20}")
 
-                search_product = input("Enter the product to edit: \n").strip().lower()
+                search_product = input("Enter the product to edit or delete: ").strip().lower()
                 edited = False
                 for line_index, line in enumerate(lines):
                     if "|" in line:
                         parts = line.strip().split("|")
                         product = parts[0].strip()
                         if product.lower() == search_product:
-                            print("1. Edit product")
+                            print("\n1. Edit product")
                             print("2. Edit quantity")
                             print("3. Edit price")
-                            print("4. Exit")
-                            choice = input("Enter your choice: \n")
+                            print("4. Delete product")
+                            print("5. Exit")
+                            choice = input("Enter your choice: ")
                             if choice == "1":
                                 new_product = input("Enter the new product: ").strip()
                                 parts[0] = new_product
@@ -117,14 +120,24 @@ def edit_file(filename):
                                 except ValueError:
                                     print("Invalid input. Price must be a number.")
                             elif choice == "4":
+                                confirmation = input(f"Are you sure you want to delete '{product}'? (y/n): ").strip().lower()
+                                if confirmation == "y":
+                                    del lines[line_index]
+                                    edited = True
+                                    print(f"Product '{product}' has been deleted.")
+                                    break  # Exit after deletion
+                                else:
+                                    print(f"Deletion of '{product}' canceled.")
+                            elif choice == "5":
                                 print("Exiting...")
                                 break
                             else:
                                 print("Invalid choice. Try again.")
                                 print("")
-                            lines[line_index] = " | ".join(parts) + "\n"
+                            if edited:
+                                lines[line_index] = " | ".join(parts) + "\n"
                             break
-                
+
                 if not edited:
                     print(f"Product '{search_product}' not found.")
 
@@ -141,10 +154,10 @@ def main():
         print("1. Create new file")
         print("2. Choose existing file")
         print("3. Exit")
-        choice = input("Enter your choice: \n")
+        choice = input("Enter your choice: ")
 
         if choice == "1":
-            filename = input("Enter the filename to create: \n")
+            filename = input("Enter the filename to create: ")
             create_file(filename)
             while True:
                 print("\nOperations:")
@@ -152,7 +165,7 @@ def main():
                 print("2. Read file")
                 print("3. Edit file")
                 print("4. Back to main menu")
-                sub_choice = input("Enter your choice: \n")
+                sub_choice = input("Enter your choice: ")
 
                 if sub_choice == "1":
                     add_product(filename)
@@ -174,7 +187,7 @@ def main():
                     print("2. Read file")
                     print("3. Edit file")
                     print("4. Back to main menu")
-                    sub_choice = input("Enter your choice: \n")
+                    sub_choice = input("Enter your choice: ")
 
                     if sub_choice == "1":
                         add_product(filename)
@@ -191,7 +204,7 @@ def main():
                     break
         
         elif choice == "3":
-            print("Exiting...")
+            print("\nExiting...")
             break
         
         else:
