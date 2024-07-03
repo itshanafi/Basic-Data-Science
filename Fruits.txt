@@ -1,4 +1,0 @@
-Product | Quantity | Price | Total
-
-Watermelon |  2  |  1.50  |  3.0
-Orange | 3 | 1.00 | 3.0
