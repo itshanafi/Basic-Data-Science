@@ -10,7 +10,7 @@ class storeManager:
         if not os.path.exists(filename):
             try:
                 with open(filename, "x") as file:
-                    file.write("Product | Quantity | Price | Total\n")
+                    file.write("Product | Quantity | RM Price | RM Total\n")
             except IOError as e:
                 print(f"Error creating file: {e}")
         else:
@@ -21,19 +21,38 @@ class storeManager:
             try:
                 with open(self.filename, 'a') as f:
                     product = input("Enter the product: ")
-                    quantity = int(input("Enter the quantity: "))
-                    price = float(input("Enter the price price (RM): ")).strip()
+                    while True:
+                        try:
+                            quantity = int(input("Enter the quantity: "))
+                            if quantity <= 0:
+                                print("Quantity must be greater than zero.")
+                            else:
+                                break
+                        except ValueError:
+                            print("Invalid input. Please enter a valid integer for quantity.")
+
+                    while True:
+                        try:
+                            price = float(input("Enter the price (RM): "))
+                            if price <= 0:
+                                print("Price must be greater than zero.")
+                            else:
+                                break
+                        except ValueError:
+                            print("Invalid input. Please enter a valid number for price.")
+
                     total = quantity * price
-                    f.write(f"{product} | {quantity} | RM {price} | RM {total}\n")
+                    f.write(f"{product} | {quantity} | {price} | {total}\n")
             except IOError as e:
                 print(f"Error adding product: {e}")
         else:
             print(f"File '{self.filename}' does not exist.")
-
     def read_file(self):
         if self.filename:
             try:
                 with open(self.filename, 'r') as f:
+                    print(f"{'Product':60}{'Quantity':>20}{'Price':>20}{'Total':>20}")
+                    print('-' * 120)
                     for line in f.readlines():
                         line = line.strip()
                         if line and '|' in line:
@@ -41,6 +60,40 @@ class storeManager:
                             print(f"{product.strip():60}{quantity.strip():>20}{price.strip():>20}{total.strip():>20}")
             except IOError as e:
                 print(f"Error reading file: {e}")
+        else:
+            print(f"File '{self.filename}' does not exist.")
+
+    def add_product(self):
+        if self.filename:
+            try:
+                with open(self.filename, 'a') as f:
+                    product = input("Enter the product: ")
+                    while True:
+                        try:
+                            quantity = int(input("Enter the quantity: "))
+                            if quantity <= 0:
+                                print("Quantity must be greater than zero.")
+                            else:
+                                break
+                        except ValueError:
+                            print("Invalid input. Please enter a valid integer for quantity.")
+
+                    while True:
+                        try:
+                            price = float(input("Enter the price (RM): "))
+                            if price <= 0:
+                                print("Price must be greater than zero.")
+                            else:
+                                break
+                        except ValueError:
+                            print("Invalid input. Please enter a valid number for price.")
+
+                    total = quantity * price
+                    f.write(f"{product} | {quantity} | RM {price} | RM {total}\n")
+                    print(f"Product '{product}' added successfully.")
+
+            except IOError as e:
+                print(f"Error adding product: {e}")
         else:
             print(f"File '{self.filename}' does not exist.")
 
@@ -54,12 +107,13 @@ class storeManager:
                     found = False
                     for line_index, line in enumerate(lines):
                         line = line.strip()
-                        
+
                         if '|' in line:
                             product, quantity, price, total = line.split('|')
+
                             print(f"{product.strip():40}{quantity.strip():>20}{price.strip():>20}{total.strip():>20}")
 
-                            search_product = input("Enter the name of the product to edit: ")
+                            search_product = input("Enter the name of the product to edit: ").strip()
                             edited = False
 
                             for line_index, line in enumerate(lines):
@@ -67,13 +121,13 @@ class storeManager:
                                     parts = line.strip().split('|')
                                     product = parts[0].strip()
 
-                                    if product.lower() == search_product:
+                                    if product.lower() == search_product.lower():
                                         print("\n1. Edit product")
                                         print("2. Edit quantity")
                                         print("3. Edit price")
                                         print("4. Delete product")
                                         print("5. Exit")
-                                        
+
                                         choice = input("Enter your choice: ")
                                         if choice == '1':
                                             new_product = input("Enter the new product: ").strip()
@@ -82,27 +136,36 @@ class storeManager:
                                             print(f"Product '{product}' has been updated to '{new_product}'.")
 
                                         elif choice == '2':
-                                            new_quantity = input("Enter the new quantity: ").strip()
-                                            if new_quantity.isdigit():
-                                                parts[1] = new_quantity
-                                                edited = True
-                                                print(f"Quantity '{quantity}' was updated to '{new_quantity}'.")
-                                                
-                                            else:
-                                                print("Invalid input. Quantity must be in number.")
+                                            while True:
+                                                try:
+                                                    new_quantity = int(input("Enter the new quantity: ").strip())
+                                                    if new_quantity <= 0:
+                                                        print("Quantity must be greater than zero.")
+                                                    else:
+                                                        parts[1] = str(new_quantity)
+                                                        edited = True
+                                                        print(f"Quantity '{quantity}' was updated to '{new_quantity}'.")
+                                                        break
+                                                except ValueError:
+                                                    print("Invalid input. Please enter a valid integer for quantity.")
 
                                         elif choice == '3':
-                                            new_price = input("Enter the new price: ").strip()
-                                            try:
-                                                float(new_price)
-                                                parts[2] = new_price
-                                                edited = True
-                                                print(f"Price '{price}' has been updated to '{new_price}'.")
-                                            except ValueError:
-                                                print("Invalid input. Price must be a number.")
+                                            while True:
+                                                try:
+                                                    new_price = float(input("Enter the new price: ").strip())
+                                                    if new_price <= 0:
+                                                        print("Price must be greater than zero.")
+                                                    else:
+                                                        parts[2] = str(new_price)
+                                                        edited = True
+                                                        print(f"Price '{price}' has been updated to '{new_price}'.")
+                                                        break
+                                                except ValueError:
+                                                    print("Invalid input. Please enter a valid number for price.")
 
                                         elif choice == '4':
-                                            confirmation = input(f"Are you sure you want to delete '{product}'? (y/n): ").strip().lower()
+                                            confirmation = input(
+                                                f"Are you sure you want to delete '{product}'? (y/n): ").strip().lower()
                                             if confirmation == "y":
                                                 del lines[line_index]
                                                 edited = True
@@ -164,7 +227,7 @@ class storeManager:
 
             elif choice == '3':
                 print("\nExiting...")
-                break
+                break  # Exit the program
 
             else:
                 print("Invalid input. Try again.")
@@ -188,7 +251,8 @@ class storeManager:
                 self.edit_file()
 
             elif sub_choice == '4':
-                break
+                print("Returning to main menu...")
+                break  # Return to main menu
 
             else:
                 print("Invalid choice. Try again.")
