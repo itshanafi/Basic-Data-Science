@@ -4,7 +4,7 @@
         "Address": "Bandar Tasik Puteri, 48020, Rawang, Selangor",
         "Phone": "016-2872774",
         "IC No": "000527-03-0741",
-        "Balance": "RM275",
+        "Balance": "RM2750",
         "Startdate": "2024-07-01",
         "Enddate": "2024-12-31",
         "CarID": "001"

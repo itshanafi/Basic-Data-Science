@@ -7,6 +7,9 @@ import os
 customers_data = {}
 cars_data = {}
 
+def clear_screen():
+    os.system('cls' if os.name == 'nt' else 'clear')
+
 def display_customer_and_car(customer_id):
     try:
         with open('Customer Detail.txt', 'r') as customer_file:
@@ -53,8 +56,9 @@ def calculate_payment(customer, car):
         print("Error: Failed to calculate payment.")
         return None
 
-def make_payment(customer_id, wallet_name):
+def make_payment_credit_card(customer_id):
     customer, car = display_customer_and_car(customer_id)
+    cardInfo()
     
     if customer and car:
         total_payment = calculate_payment(customer, car)
@@ -66,14 +70,14 @@ def make_payment(customer_id, wallet_name):
                 customers_data[customer_id]['Balance'] = f"RM{new_balance:.2f}"
                 print(f"Total Payment: RM {total_payment:.2f}")
                 print(f"Remaining Balance: RM {new_balance:.2f}")
-                confirmPayment(wallet_name)
+                card_info = cardInfo()
+                if card_info:
+                    display_invoice(customer_id)
+                    return True
             else:
                 print("Insufficient balance.")
     
-    return customers_data  # Return updated customers_data after payment
-
-def clear_screen():
-    os.system('cls' if os.name == 'nt' else 'clear')
+    return False
 
 def cardInfo():
     print("\nEnter the card number: ")
@@ -148,7 +152,6 @@ def cardInfo():
 
     clear_screen()  # Clear the screen before displaying success message
 
-    print("\nYour payment has been successful!")
     print(f"Card Type: {card_type}")
     print(f"Card Number: {'*' * 12}{cardNumber[-4:]}")
     print(f"Card Holder: {cardHolderName}")
@@ -157,9 +160,9 @@ def cardInfo():
     # Example: Return or store card information
     return cardNumber, cardHolderName, expiryDate, cvv, card_type
 
-def eWallet(customer_id, wallet_name):
-    print(f"\nSelected: {wallet_name}")
+def make_payment_eWallet(customer_id, wallet_name):
     customer, car = display_customer_and_car(customer_id)
+    
     if customer and car:
         total_payment = calculate_payment(customer, car)
         if total_payment is not None:
@@ -169,8 +172,12 @@ def eWallet(customer_id, wallet_name):
                 print(f"Total Payment: RM {total_payment:.2f}")
                 print(f"Remaining Balance: RM {new_balance:.2f}")
                 confirmPayment(wallet_name)
+                display_invoice(customer_id)
+                return True
             else:
                 print("Insufficient balance.")
+
+    return False
 
 def choose_eWallet(customer_id):
     print("\nPlease choose the type of eWallet: ")
@@ -183,16 +190,16 @@ def choose_eWallet(customer_id):
     while True:
         choice = input("Enter your choice: ")
         if choice == "1":
-            eWallet(customer_id, "GrabPay")
+            make_payment_eWallet(customer_id, "GrabPay")
             break
         elif choice == "2":
-            eWallet(customer_id, "TnG")
+            make_payment_eWallet(customer_id, "TnG")
             break
         elif choice == "3":
-            eWallet(customer_id, "BigPay")
+            make_payment_eWallet(customer_id, "BigPay")
             break
         elif choice == "4":
-            eWallet(customer_id, "ShopeePay")
+            make_payment_eWallet(customer_id, "ShopeePay")
             break
         elif choice == "5":
             print("\nExit.....")
@@ -200,8 +207,7 @@ def choose_eWallet(customer_id):
         else:
             print("Invalid choice")
 
-
-def bankTransfer():
+def bankTransfer(customer_id):
     print("\nPlease choose the type of bank transfer: ")
     print("1. MayBank")
     print("2. Public Bank")
@@ -211,19 +217,40 @@ def bankTransfer():
     while True:
         choice = input("Enter your choice: ")
         if choice == "1":
-            bankInfo("MayBank")
+            make_payment_bank_transfer(customer_id, "MayBank")
             break
         elif choice == "2":
-            bankInfo("Public Bank")
+            make_payment_bank_transfer(customer_id, "Public Bank")
             break
         elif choice == "3":
-            bankInfo("Bank Islam")
+            make_payment_bank_transfer(customer_id, "Bank Islam")
             break
         elif choice == "4":
             print("\nExit.....")
             break
         else:
             print("Invalid choice")
+
+def make_payment_bank_transfer(customer_id, bank_name):
+    customer, car = display_customer_and_car(customer_id)
+    bankInfo()
+    
+    if customer and car:
+        total_payment = calculate_payment(customer, car)
+        if total_payment is not None:
+            # Simulate bank transfer process
+            username, password = bankInfo(bank_name)
+            if username and password:  # Assume validation or authentication success
+                new_balance = float(customer['Balance'].replace("RM", "")) - total_payment
+                customers_data[customer_id]['Balance'] = f"RM{new_balance:.2f}"
+                print(f"Total Payment: RM {total_payment:.2f}")
+                print(f"Remaining Balance: RM {new_balance:.2f}")
+                display_invoice(customer_id)
+                return True
+            else:
+                print("Bank authentication failed.")
+    
+    return False
 
 def bankInfo(bank_name):
     print(f"\nSelected: {bank_name}")
@@ -239,7 +266,6 @@ def bankInfo(bank_name):
     
     return username, password
 
-
 def confirmPayment(wallet_name):
     print(f"\nYou have selected {wallet_name} for payment.")
     print("Please confirm your payment details.")
@@ -247,6 +273,19 @@ def confirmPayment(wallet_name):
     time.sleep(5)  # Simulating processing time
     clear_screen()  # Clear the screen before displaying success message
     print("Payment confirmed!")
+
+def display_invoice(customer_id):
+    customer, car = display_customer_and_car(customer_id)
+    if customer and car:
+        print("\n===== Invoice =====")
+        print(f"Customer ID: {customer_id}")
+        print(f"Customer Name: {customer['Name']}")
+        print(f"Car ID: {customer['CarID']}")
+        print(f"Car Model: {car['Model']}")
+        print(f"Start Date: {customer['Startdate']}")
+        print(f"End Date: {customer['Enddate']}")
+        print(f"Total Payment: {calculate_payment(customer, car):.2f} RM")
+        print("===================")
 
 def main():
     print("\nPlease select a payment method: ")
@@ -259,17 +298,21 @@ def main():
         choice = input("Enter your choice: ")
         if choice == "1":
             print("\nSelected: Credit Card")
-            cardInfo()
+            print("\nEnter your Customer ID:")
+            customer_id = input().strip()
+            make_payment_credit_card(customer_id)
             break
         elif choice == "2":
             print("\nSelected: eWallet")
             print("\nEnter your Customer ID:")
             customer_id = input().strip()
-            eWallet(customer_id)
+            choose_eWallet(customer_id)
             break
         elif choice == "3":
             print("\nSelected: Bank Transfer")
-            bankTransfer()
+            print("\nEnter your Customer ID:")
+            customer_id = input().strip()
+            bankTransfer(customer_id)
             break
         elif choice == "4":
             print("\nExit.....")
