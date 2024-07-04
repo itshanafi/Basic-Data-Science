@@ -47,6 +47,7 @@ class storeManager:
                 print(f"Error adding product: {e}")
         else:
             print(f"File '{self.filename}' does not exist.")
+            
     def read_file(self):
         if self.filename:
             try:
@@ -60,40 +61,6 @@ class storeManager:
                             print(f"{product.strip():60}{quantity.strip():>20}{price.strip():>20}{total.strip():>20}")
             except IOError as e:
                 print(f"Error reading file: {e}")
-        else:
-            print(f"File '{self.filename}' does not exist.")
-
-    def add_product(self):
-        if self.filename:
-            try:
-                with open(self.filename, 'a') as f:
-                    product = input("Enter the product: ")
-                    while True:
-                        try:
-                            quantity = int(input("Enter the quantity: "))
-                            if quantity <= 0:
-                                print("Quantity must be greater than zero.")
-                            else:
-                                break
-                        except ValueError:
-                            print("Invalid input. Please enter a valid integer for quantity.")
-
-                    while True:
-                        try:
-                            price = float(input("Enter the price (RM): "))
-                            if price <= 0:
-                                print("Price must be greater than zero.")
-                            else:
-                                break
-                        except ValueError:
-                            print("Invalid input. Please enter a valid number for price.")
-
-                    total = quantity * price
-                    f.write(f"{product} | {quantity} | RM {price} | RM {total}\n")
-                    print(f"Product '{product}' added successfully.")
-
-            except IOError as e:
-                print(f"Error adding product: {e}")
         else:
             print(f"File '{self.filename}' does not exist.")
 
