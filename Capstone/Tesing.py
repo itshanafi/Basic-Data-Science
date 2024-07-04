@@ -1,30 +1,22 @@
-# Create a module of payment processing system for car rental
-# The module should have the following functions:
-# 1. Calculate the total cost of the rental based on the number of days and the cost
-#    of the car per day. The cost of the car per day should be a parameter of
-#    the function.
-
 import ast
-import os
 import datetime
 import time
+import os
+
+# Assuming customers_data and cars_data are defined and populated elsewhere in your program
+customers_data = {}
+cars_data = {}
 
 def display_customer_and_car(customer_id):
     try:
-        # Read Customer Detail.txt
         with open('Customer Detail.txt', 'r') as customer_file:
             customers_data = ast.literal_eval(customer_file.read())
         
-        # Read Car Detail.txt
         with open('Car Detail.txt', 'r') as car_file:
             cars_data = ast.literal_eval(car_file.read())
         
-        # Check if customer_id exists in customers_data
         if customer_id in customers_data:
-            # Retrieve customer details
             customer = customers_data[customer_id]
-            
-            # Retrieve car details using CarID from customer data
             car_id = customer['CarID']
             if car_id in cars_data:
                 car = cars_data[car_id]
@@ -48,27 +40,44 @@ def display_customer_and_car(customer_id):
 
 def calculate_payment(customer, car):
     try:
-        # Parse dates from customer details
-        start_date = datetime.datetime.strptime(customer['Startdate'], '%Y-%m-%d').date()
-        end_date = datetime.datetime.strptime(customer['Enddate'], '%Y-%m-%d').date()
+        start_date = datetime.datetime.strptime(customer['Startdate'], "%Y-%m-%d")
+        end_date = datetime.datetime.strptime(customer['Enddate'], "%Y-%m-%d")
+        rental_days = (end_date - start_date).days
         
-        # Calculate rental duration in days
-        rental_duration = (end_date - start_date).days
-        
-        # Parse price per day from car details
         price_per_day = float(car['Price/day'].replace("RM", ""))
-        
-        # Calculate total payment
-        total_payment = rental_duration * price_per_day
+        total_payment = rental_days * price_per_day
         
         return total_payment
     
     except ValueError:
-        print("Error: Failed to calculate payment due to invalid data.")
+        print("Error: Failed to calculate payment.")
         return None
-    except Exception as e:
-        print(f"An unexpected error occurred: {str(e)}")
-        return None
+
+def make_payment(customer_id, wallet_name):
+    customer, car = display_customer_and_car(customer_id)
+    
+    if customer and car:
+        total_payment = calculate_payment(customer, car)
+        if total_payment is not None:
+            current_balance = float(customer['Balance'].replace("RM", ""))
+            
+            if current_balance >= total_payment:
+                new_balance = current_balance - total_payment
+                customers_data[customer_id]['Balance'] = f"RM{new_balance:.2f}"
+                print(f"Total Payment: RM {total_payment:.2f}")
+                print(f"Remaining Balance: RM {new_balance:.2f}")
+                confirmPayment(wallet_name)
+            else:
+                print("Insufficient balance.")
+    
+    return customers_data  # Return updated customers_data after payment
+
+def confirmPayment(wallet_name):
+    print(f"\nYou have selected {wallet_name} for payment.")
+    print("Please confirm your payment details.")
+    time.sleep(5)  # Simulating processing time
+    clear_screen()  # Clear the screen before displaying success message
+    print("Payment confirmed!")
 
 def clear_screen():
     os.system('cls' if os.name == 'nt' else 'clear')

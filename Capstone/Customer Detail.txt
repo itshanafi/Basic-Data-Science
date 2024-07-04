@@ -1,0 +1,62 @@
+{
+    "001": {
+        "Name": "Muhammad Iman Firdaus Bin Md Rostan",
+        "Address": "Bandar Tasik Puteri, 48020, Rawang, Selangor",
+        "Phone": "016-2872774",
+        "IC No": "000527-03-0741",
+        "Balance": "RM275",
+        "Startdate": "2024-07-01",
+        "Enddate": "2024-12-31",
+        "CarID": "001"
+    },
+    "002": {
+        "Name": "Hanafi Akmal",
+        "Address": "Johor, Selangor",
+        "Phone": "016-2872774",
+        "IC No": "000527-03-0741",
+        "Balance": "RM275",
+        "Startdate": "2024-07-01",
+        "Enddate": "2024-12-31",
+        "CarID": "003"
+    },
+    "003": {
+        "Name": "Ahmad Bin Ismail",
+        "Address": "123 Main Street, Bandar Baru",
+        "Phone": "011-2345678",
+        "IC No": "999888-77-7666",
+        "Balance": "RM800",
+        "Startdate": "2024-07-01",
+        "Enddate": "2024-12-31",
+        "CarID": "002"
+    },
+    "004": {
+        "Name": "Siti Binti Rahman",
+        "Address": "456 Beautiful Avenue, Seri Garden",
+        "Phone": "019-8765432",
+        "IC No": "111222-33-3444",
+        "Balance": "RM600",
+        "Startdate": "2024-07-01",
+        "Enddate": "2024-12-31",
+        "CarID": "001"
+    },
+    "005": {
+        "Name": "Norazila Binti Abdullah",
+        "Address": "Lot 123, Jalan Seri Maju, Happy Village",
+        "Phone": "017-6543210",
+        "IC No": "888777-66-6555",
+        "Balance": "RM700",
+        "Startdate": "2024-07-01",
+        "Enddate": "2024-12-31",
+        "CarID": "006"
+    },
+    "006": {
+        "Name": "Ahmad Bin Hussin",
+        "Address": "789 Jalan Harmoni, Taman Bahagia",
+        "Phone": "013-4567890",
+        "IC No": "777888-99-9000",
+        "Balance": "RM400",
+        "Startdate": "2024-07-01",
+        "Enddate": "2024-12-31",
+        "CarID": "005"
+    }
+}

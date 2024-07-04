@@ -1,0 +1,38 @@
+{
+	"001": {
+        	"Brand": "Perodua",
+        	"Type": "Axia",
+        	"Plate Num": "DKG 5579",
+        	"Price/day": "RM120",
+               },
+	"002": {
+        	"Brand": "Perodua",
+        	"Type": "Myvi",
+        	"Plate Num": "VAC 1275",
+        	"Price/day": "RM160",
+               },
+	"003": {
+        	"Brand": "Proton",
+        	"Type": "X50",
+        	"Plate Num": "PDQ 4890",
+        	"Price/day": "RM246",
+               },
+	"004": {
+        	"Brand": "Proton",
+        	"Type": "Exora",
+        	"Plate Num": "JZX 3902",
+        	"Price/day": "RM315",
+               },
+	"005": {
+        	"Brand": "Nissan",
+        	"Type": "Almera",
+        	"Plate Num": "PKI 9478",
+        	"Price/day": "RM278",
+               },
+	"006": {
+        	"Brand": "Perodua",
+        	"Type": "Alza",
+        	"Plate Num": "DNH 4752",
+        	"Price/day": "RM350",
+               },
+}
