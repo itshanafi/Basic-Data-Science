@@ -35,7 +35,6 @@ class CarRentalSystem:
             print(f"An unexpected error occurred: {str(e)}")
             return False
 
-    
     def display_customer_and_car(self, customer_id):
         if customer_id in self.customers_data:
             customer = self.customers_data[customer_id]
@@ -72,7 +71,6 @@ class CarRentalSystem:
             print(f"An unexpected error occurred: {str(e)}")
             return None
 
-    
     def calculate_payment(self, customer, car):
         try:
             start_date = datetime.datetime.strptime(customer['Startdate'], "%Y-%m-%d")
@@ -100,7 +98,6 @@ class CarRentalSystem:
                 print("\nOperation cancelled by user.")
                 return None
 
-    
     def make_payment(self, wallet_name):
         customer_id = self.get_customer_id()
         
@@ -136,7 +133,6 @@ class CarRentalSystem:
             print("Invalid customer ID. Please try again.")
             return False
 
-    
     def clear_screen(self):
         os.system('cls' if os.name == 'nt' else 'clear')
     
@@ -145,33 +141,37 @@ class CarRentalSystem:
         
         if customer_id:
             print("\nEnter the card number (16 digits): ")
-            card_number = input().replace(" ", "").strip()
-            if len(card_number) != 16 or not card_number.isdigit():
-                print("\nInvalid card number format. Please enter a valid 16-digit number.")
-                return
-            
+            while True:
+                card_number = input().replace(" ", "").strip()
+                if len(card_number) != 16 or not card_number.isdigit():
+                    print("\nInvalid card number format. Please enter a valid 16-digit number.")
+                else:
+                    break
+    
             print("\nEnter the card holder name: ")
             card_holder_name = input().strip()
     
             print("\nEnter the expiry date (MMYY): ")
-            expiry_date = input().replace('/', '').strip()
-            if len(expiry_date) != 4 or not expiry_date.isdigit():
-                print("\nInvalid expiry date format. Please enter MMYY.")
-                return
-            
-            month = int(expiry_date[:2])
-            year = int(expiry_date[2:])
-            current_year = datetime.datetime.now().year % 100
-            
-            if year < current_year or (year == current_year and month < datetime.datetime.now().month):
-                print("\nInvalid expiry date. Please enter a future date.")
-                return
+            while True:
+                expiry_date = input().replace('/', '').strip()
+                if len(expiry_date) != 4 or not expiry_date.isdigit():
+                    print("\nInvalid expiry date format. Please enter MMYY.")
+                else:
+                    month = int(expiry_date[:2])
+                    year = int(expiry_date[2:])
+                    current_year = datetime.datetime.now().year % 100
+                    if year < current_year or (year == current_year and month < datetime.datetime.now().month):
+                        print("\nInvalid expiry date. Please enter a future date.")
+                    else:
+                        break
     
             print("\nEnter the CVV / CVC (3 digits): ")
-            cvv = input().strip()
-            if len(cvv) != 3 or not cvv.isdigit():
-                print("\nInvalid CVV format. Please enter a valid 3-digit number.")
-                return
+            while True:
+                cvv = input().strip()
+                if len(cvv) != 3 or not cvv.isdigit():
+                    print("\nInvalid CVV format. Please enter a valid 3-digit number.")
+                else:
+                    break
     
             print("\nProcessing... Please wait...")
             time.sleep(2)  # Simulating processing time
@@ -205,7 +205,7 @@ class CarRentalSystem:
                         if current_balance >= total_deposit:
                             new_balance = current_balance - total_deposit
                             self.customers_data[customer_id]['Balance'] = f"RM{new_balance:.2f}"
-                            print(f"Total Payment: RM {total_deposit:.2f}")
+                            print(f"Total Deposit: RM {total_deposit:.2f}")
                             print(f"Remaining Balance: RM {new_balance:.2f}")
                             self.confirm_payment("eWallet", customer_id)
                             return True
@@ -296,45 +296,56 @@ class CarRentalSystem:
                 print("=" * line_width)
         else:
             print("Failed to generate invoice. Customer or car details not found.")
+
+    def main_menu(self):
+        print("=" * 50)
+        print("Payment Method System".center(50))
+        print("=" * 50)
+        print("Please select a payment method:")
+        print("1. Credit Card")
+        print("2. eWallet")
+        print("3. Bank Transfer")
+        print("4. Exit")
+        print("=" * 50)
     
     def main(self):
-        try:
-            if self.read_customer_and_car_data():
-                while True:
-                    print("\nPlease select a payment method: ")
-                    print("1. Credit Card")
-                    print("2. eWallet")
-                    print("3. Bank Transfer")
-                    print("4. Exit")
-                    
-                    choice = input("Enter your choice: ").strip()
-                    
-                    if choice == "1":
-                        print("\nSelected: Credit Card")
-                        self.card_info()
-                        break
-                    
-                    elif choice == "2":
-                        print("\nSelected: eWallet")
-                        self.e_wallet()
-                        break
-                    
-                    elif choice == "3":
-                        print("\nSelected: Bank Transfer")
-                        self.bank_transfer()
-                        break
-                    
-                    elif choice == "4":
-                        print("\nExit.....")
-                        break
-                    
-                    else:
-                        print("\nInvalid choice. Please enter a number from 1 to 4.")
-            else:
-                print("Failed to initialize. Check data files and try again.")
-
-        except Exception as e:
-            print(f"An unexpected error occurred: {str(e)}")
+        if self.read_customer_and_car_data():
+            while True:
+                self.main_menu()
+                choice = input("Enter your choice: ").strip()
+                
+                if choice == "1":
+                    self.clear_screen()
+                    print("=" * 50)
+                    print("Credit Card Payment".center(50))
+                    print("=" * 50)
+                    self.card_info()
+                    break
+                
+                elif choice == "2":
+                    self.clear_screen()
+                    print("=" * 50)
+                    print("eWallet Payment".center(50))
+                    print("=" * 50)
+                    self.e_wallet()
+                    break
+                
+                elif choice == "3":
+                    self.clear_screen()
+                    print("=" * 50)
+                    print("Bank Transfer".center(50))
+                    print("=" * 50)
+                    self.bank_transfer()
+                    break
+                
+                elif choice == "4":
+                    print("\nExiting Car Rental System. Goodbye!")
+                    break
+                
+                else:
+                    print("\nInvalid choice. Please enter a number from 1 to 4.")
+        else:
+            print("Failed to initialize. Check data files and try again.")
 
 # Run the program
 if __name__ == "__main__":
