@@ -68,7 +68,7 @@ def main():
 if __name__ == "__main__":
     main()
 '''
-
+'''
 # Define custom exception class
 class CustomException(Exception):
     pass
@@ -98,3 +98,25 @@ def main():
 
 if __name__ == "__main__":
     main()
+'''
+
+class CustomError(Exception):
+    pass
+
+
+def vote(name, age):
+    print(f"Voter name: {name}")
+    print(f"Voter age: {age}")
+
+
+try:
+    name = input("Enter the Name\n")
+    age = int(input("Enter the age\n"))
+
+    if age < 18:
+        raise CustomError("CustomException: InvalidAgeRangeException")
+
+    vote(name, age)
+except CustomError as e:
+    error_message = str(e)
+    print(error_message)
