@@ -165,8 +165,22 @@ class CarRentalSystem:
                     month = int(expiry_date[:2])
                     year = int(expiry_date[2:])
                     current_year = datetime.datetime.now().year % 100
+                    if month > 12:
+                        print("\nInvalid expiry date.")
+
+                        time.sleep(2)  # Simulating processing time
+                        self.clear_screen()  # Clear the screen before displaying success message
+                        car_rental_system.main_menu(customer_id)
+                        return
+                    
                     if year < current_year or (year == current_year and month < datetime.datetime.now().month):
-                        print("\nInvalid expiry date. Please enter a future date.")
+                        print("\nInvalid expiry date.")
+
+                        time.sleep(2)  # Simulating processing time
+                        self.clear_screen()  # Clear the screen before displaying success message
+                        car_rental_system.main_menu(customer_id)
+                        return
+
                     else:
                         break
                 except ValueError:
@@ -226,7 +240,7 @@ class CarRentalSystem:
         print("1. MayBank")
         print("2. Public Bank")
         print("3. Bank Islam")
-        print("4. Exit")
+        print("4. Back to Main Menu")
 
         while True:
             choice = input("Enter your choice: ").strip()
@@ -241,7 +255,7 @@ class CarRentalSystem:
                 break
             elif choice == "4":
                 print("\nExit.....")
-                break
+                car_rental_system.main_menu()
             else:
                 print("Invalid choice. Please enter a number from 1 to 4.")
 

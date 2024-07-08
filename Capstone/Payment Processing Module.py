@@ -168,6 +168,7 @@ def card_info():
                     print("\nInvalid expiry date format. Please enter MMYY.")
                     continue
                 
+                
                 month = int(expiry_date[:2])
                 year = int(expiry_date[2:])
                 current_year = datetime.datetime.now().year % 100
@@ -175,6 +176,7 @@ def card_info():
                 if year < current_year or (year == current_year and month < datetime.datetime.now().month):
                     print("\nInvalid expiry date. Please enter a future date.")
                     continue
+                
 
                 print("\nEnter the CVV / CVC (3 digits): ")
                 cvv = input().strip()
