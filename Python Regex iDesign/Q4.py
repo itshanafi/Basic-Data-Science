@@ -18,24 +18,29 @@
 # hiehllo
 
 def encrypt(s1, s2):
-    s1 = s1.lower().replace(" ", "")
-    s2 = s2.lower().replace(" ", "")
+    encrypted = []
+    len1, len2 = len(s1), len(s2)
     
-    if len(s1) > len(s2):
-        s1, s2 = s2, s1
+    min_len = min(len1, len2)
     
-    encrypted = ""
-    for i in range(max(len(s1), len(s2))):
-        if i < len(s1):
-            encrypted += s1[i]
-        if i < len(s2):
-            encrypted += s2[i]
+    # Interleave the characters as described
+    for i in range(min_len):
+        encrypted.append(s1[i])
+        encrypted.append(s2[-(i+1)])
     
-    return encrypted
+    # If any characters are left in the longer string, add them to the result
+    if len1 > len2:
+        encrypted.extend(s1[min_len:])
+    elif len2 > len1:
+        encrypted.extend(s2[:len2 - min_len][::-1])
+    
+    return ''.join(encrypted)
 
-s = input().strip()
+# Sample Input
+s1 = input()
+s2 = input()
 
-s1, s2 = s.split()
-
+# Encrypt and print the result
 print(encrypt(s1, s2))
+
 
