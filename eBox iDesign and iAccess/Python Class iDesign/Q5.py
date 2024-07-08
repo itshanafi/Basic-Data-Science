@@ -60,30 +60,30 @@
 # Main.py
 from User import User
 
-print("Enter the details of User 1")
-name_1 = input("Name :\n")
-username_1 = input("Username :\n")
-pwd_1 = input("Password :\n")
-mobile_number_1 = input("Mobile Number :\n")
+def get_user_details(user_number):
+    print(f"Enter the details of User {user_number}")
+    name = input("Name :\n")
+    username = input("Username :\n")
+    password = input("Password :\n")
+    mobile_number = int(input("Mobile Number :\n"))
+    return User(name, username, password, mobile_number)
 
-print("Enter the details of User 2")
-name_2 = input("Name :\n")
-username_2 = input("Username :\n")
-pwd_2 = input("Password :\n")
-mobile_number_2 = input("Mobile Number :\n")
+# Main function to compare two users
+def main():
+    user1 = get_user_details(1)
+    user2 = get_user_details(2)
 
-user1 = User(name_1, username_1, pwd_1, mobile_number_1)
-user2 = User(name_2, username_2, pwd_2, mobile_number_2)
+    if user1 == user2:
+        print(f"User 1 and User 2 are equal")
+    else:
+        print(f"User 1 and User 2 are not equal")
 
-if user1.mobile_number == user2.mobile_number:
-    print("User 1 and User 2 are equal")
-
-else:
-    print("User 1 and User 2 are not equal")
+if __name__ == "__main__":
+    main()
 
 # User.py
 class User:
-    def __init__(self, name, username, password, mobile_number):
+    def __init__(self,name,username,password,mobile_number):
         self.name = name
         self.username = username
         self.password = password
@@ -91,8 +91,5 @@ class User:
 
     def __eq__(self, other):
         if isinstance(other, User):
-            return (self.name == other.name and
-                    self.username == other.username and
-                    self.password == other.password and
-                    self.mobile_number == other.mobile_number)
+            return self.mobile_number == other.mobile_number
         return False
