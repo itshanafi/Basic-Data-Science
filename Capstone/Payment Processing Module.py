@@ -94,7 +94,7 @@ def calculate_payment(customer, car):
 
 def get_customer_id():
     global customers_data
-    
+
     try:
         while True:
             customer_id = input("Enter Customer ID: ").strip()
@@ -107,41 +107,6 @@ def get_customer_id():
         print(f"An unexpected error occurred during customer ID retrieval: {str(e)}")
         return None
 
-def make_payment(wallet_name):
-    global customers_data
-    
-    try:
-        customer_id = get_customer_id()
-        
-        if customer_id:
-            customer, car = display_customer_and_car(customer_id)
-            
-            if customer and car:
-                total_payment = calculate_payment(customer, car)
-                if total_payment is not None:
-                    current_balance = float(customer['Balance'].replace("RM", ""))
-                    
-                    if current_balance >= total_payment:
-                        new_balance = current_balance - total_payment
-                        customers_data[customer_id]['Balance'] = f"RM{new_balance:.2f}"
-                        print(f"Total Payment: RM {total_payment:.2f}")
-                        print(f"Remaining Balance: RM {new_balance:.2f}")
-                        confirm_payment(wallet_name, customer_id)
-                        return True
-                    else:
-                        print("Insufficient balance. Please choose another payment method.")
-                        return False
-            else:
-                print(f"Failed to make payment for Customer ID '{customer_id}'. Please try again.")
-                return False
-        else:
-            print("Invalid customer ID. Please try again.")
-            return False
-    
-    except Exception as e:
-        print(f"An unexpected error occurred during payment processing: {str(e)}")
-        return False
-
 def clear_screen():
     os.system('cls' if os.name == 'nt' else 'clear')
 
@@ -151,7 +116,7 @@ def card_info():
     try:
         customer_id = get_customer_id()
         
-        if customer_id:
+        if customer_id: 
             while True:
                 print("\nEnter the card number (16 digits): ")
                 card_number = input().replace(" ", "").strip()
