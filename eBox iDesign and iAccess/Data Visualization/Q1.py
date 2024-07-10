@@ -10,7 +10,7 @@ total_medals = df['Total']
 
 # Configure plot settings
 # plt.figure(figsize=(10, 6))  # Adjust figure size if necessary
-plt.plot(teams, total_medals, linestyle=':', color='red', marker='o', markerfacecolor='k', linewidth=3)
+plt.plot(teams, total_medals, linestyle='--', color='red', marker='o', markerfacecolor='k', linewidth=3)
 
 # Set labels and title
 plt.xlabel('Team Name')
@@ -23,5 +23,3 @@ plt.legend(['Team-wise Total Medal Data'], loc='lower right')
 # Save the plot as plot2.png
 plt.savefig('plot2.png')
 
-# Display the plot (optional)
-plt.show()

@@ -26,6 +26,3 @@ plt.title('Total Medals Histogram')
 
 # Save the plot as plot6.png
 plt.savefig('plot6.png')
-
-# Display the plot
-plt.show()

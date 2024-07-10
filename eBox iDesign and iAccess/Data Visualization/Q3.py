@@ -25,5 +25,3 @@ plt.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
 # Save the plot as plot7.png
 plt.savefig('plot7.png')
 
-# Display the plot
-plt.show()
