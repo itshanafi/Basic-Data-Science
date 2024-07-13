@@ -23,7 +23,7 @@
 # +----+--------+----------------+-----------+----------+
 
 # Main.py
-
+'''
 import mysql.connector
 import configparser
 from mysql.connector import Error
@@ -98,6 +98,44 @@ def execute_insert_and_display(cursor, conn, data):
 
 if __name__ == "__main__":
     main()
+'''
+
+
+import mysql.connector,configparser,sys
+from mysql.connector import Error
+config = configparser.RawConfigParser()
+config.read('mysql.properties')
+dburl = config.get('DatabaseSection', 'db.host');
+dbname = config.get('DatabaseSection', 'db.schema');
+username = config.get('DatabaseSection', 'db.username');
+password = config.get('DatabaseSection', 'db.password');
+port = config.get('DatabaseSection', 'db.port');
+from prettytable import PrettyTable
+x=PrettyTable()
+x.field_names=["Id","Name","Contact Detail","Username","Password"]
+try:
+    mydb=mysql.connector.connect(host=dburl,port=port,database=dbname,user=username,password=password)
+    cursor=mydb.cursor(buffered=True)
+    u=input("Enter the user detail in CSV format\n")
+    d=u.split(",")
+    
+    # code here
+    insert_query="INSERT INTO user (Name,Contactdetail,Username,Password) VALUES (%s, %s, %s, %s)"
+    cursor.execute(insert_query, (d[0],d[1],d[2],d[3]))
+    mydb.commit()
+    
+    select_query="SELECT * FROM user"
+    cursor.execute(select_query)
+    result=cursor.fetchall()
+
+    for row in result:
+        x.add_row([row[0],row[1],row[2],row[3],row[4]])
+    print (x)
+except Error as e:
+    print(e)
+finally:
+    cursor.close()
+    mydb.close()
 
 
 

@@ -75,6 +75,7 @@
 # admin
 # No such user is present
 
+
 import mysql.connector
 from prettytable import PrettyTable
 import configparser
@@ -114,9 +115,9 @@ def display_users(rows):
 # Function to update contact detail for a user
 def update_contact_detail(username, new_contact_detail):
     update_query = '''
-        UPDATE user
-        SET contact_detail = %s
-        WHERE username = %s
+        # UPDATE user
+        # SET contact_detail = %s
+        # WHERE username = %s
     '''
     cursor.execute(update_query, (new_contact_detail, username))
     conn.commit()
@@ -161,3 +162,82 @@ if __name__ == "__main__":
 # Closing database connection
 cursor.close()
 conn.close()
+
+
+#################################################################################################
+
+import mysql.connector
+import configparser
+from mysql.connector import Error
+from prettytable import PrettyTable
+
+# Read database configuration from properties file
+config = configparser.RawConfigParser()
+config.read('mysql.properties')
+
+dburl = config.get('DatabaseSection', 'db.host')
+dbname = config.get('DatabaseSection', 'db.schema')
+username = config.get('DatabaseSection', 'db.username')
+password = config.get('DatabaseSection', 'db.password')
+port = config.get('DatabaseSection', 'db.port')
+
+# Initialize PrettyTable
+x = PrettyTable()
+x.field_names = ["Id", "Name", "Contact Detail", "Username", "Password"]
+
+try:
+    # Connect to the database
+    mydb = mysql.connector.connect(host=dburl, port=port, database=dbname, user=username, password=password)
+    cursor = mydb.cursor(buffered=True)
+    
+    # Display user table
+    select_query = "SELECT * FROM user"
+    cursor.execute(select_query)
+    result = cursor.fetchall()
+
+    print("+----+--------+----------------+-----------+----------+")
+    for row in result:
+        print(f"| {row[0]} | {row[1]} | {row[2]} | {row[3]} | {row[4]} |")
+    print("+----+--------+----------------+-----------+----------+")
+    
+    # Prompt user for username to update contact details
+    print("Enter the username:")
+    username_input = input().strip()
+    
+    # Check if the username exists in the user table
+    select_user_query = "SELECT * FROM user WHERE name = %s"
+    cursor.execute(select_user_query, (username_input,))
+    user = cursor.fetchone()
+    
+    if user:
+        print("Enter the mobile number to be updated:")
+        new_contact_detail = input().strip()
+        
+        # Update contact details for the user
+        update_query = "UPDATE user SET contactDetail = %s WHERE name = %s"
+        cursor.execute(update_query, (new_contact_detail, username_input))
+        mydb.commit()
+        
+        # Display updated user details
+        select_updated_query = "SELECT * FROM user WHERE name = %s"
+        cursor.execute(select_updated_query, (username_input,))
+        updated_user = cursor.fetchone()
+
+        print("+----+--------+----------------+-----------+----------+")
+        print(f"| {updated_user[0]} | {updated_user[1]} | {updated_user[2]} | {updated_user[3]} | {updated_user[4]} |")
+        print("+----+--------+----------------+-----------+----------+")
+        
+    else:
+        print("No such user is present.")
+    
+except Error as e:
+    print(f"Error: {e}")
+
+finally:    
+    if cursor:
+        cursor.close()
+    if mydb:
+        mydb.close()
+
+
+    
