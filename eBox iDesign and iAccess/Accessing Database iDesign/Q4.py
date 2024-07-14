@@ -54,72 +54,81 @@
 import mysql.connector
 import configparser
 from prettytable import PrettyTable
+from mysql.connector import Error
 
-# Load database configuration from 'mysql.properties'
+# Read database configuration from properties file
 config = configparser.RawConfigParser()
 config.read('mysql.properties')
-db_host = config.get('DatabaseSection', 'db.host')
-db_name = config.get('DatabaseSection', 'db.schema')
-db_username = config.get('DatabaseSection', 'db.username')
-db_password = config.get('DatabaseSection', 'db.password')
+dburl = config.get('DatabaseSection', 'db.host')
+dbname = config.get('DatabaseSection', 'db.schema')
+username = config.get('DatabaseSection', 'db.username')
+password = config.get('DatabaseSection', 'db.password')
+port = config.get('DatabaseSection', 'db.port')
 
-def display_users(cursor):
+# Function to connect to the MySQL database
+def connect_to_database():
+    try:
+        connection = mysql.connector.connect(
+            host=dburl,
+            database=dbname,
+            user=username,
+            password=password,
+            port=port
+        )
+        if connection.is_connected():
+            return connection
+    except Error as e:
+        print(f"Error while connecting to MySQL: {e}")
+        return None
+
+# Function to display the user table
+def display_user_table(cursor):
     cursor.execute("SELECT * FROM user")
-    rows = cursor.fetchall()
-    table = PrettyTable(['Id', 'Name', 'Contact Detail', 'Username', 'Password'])
-    for row in rows:
+    records = cursor.fetchall()
+    table = PrettyTable(["Id", "Name", "Contact Detail", "Username", "Password"])
+    for row in records:
         table.add_row(row)
     print(table)
 
-def get_user(cursor, name):
+# Function to update contact details for a given name
+def update_contact_details(cursor, connection, name):
     cursor.execute("SELECT * FROM user WHERE name = %s", (name,))
-    return cursor.fetchone()
+    record = cursor.fetchone()
+    if record:
+        table = PrettyTable(["Id", "Name", "Contact Detail", "Username", "Password"])
+        table.add_row(record)
+        print(table)
+        print("Enter the mobile number to be updated:")
+        new_contact = input()
+        cursor.execute("UPDATE user SET contactDetail = %s WHERE name = %s", (new_contact, name))
+        connection.commit()
 
-def display_user_details(user):
-    table = PrettyTable(['Id', 'Name', 'Contact Detail', 'Username', 'Password'])
-    table.add_row(user)
-    print(table)
+        cursor.execute("SELECT * FROM user WHERE name = %s", (name,))
+        updated_record = cursor.fetchone()
+        table = PrettyTable(["Id", "Name", "Contact Detail", "Username", "Password"])
+        table.add_row(updated_record)
+        print(table)
+    else:
+        print("No such user is present")
 
-def update_contact_detail(cursor, connection, user_id, new_contact_detail):
-    cursor.execute("UPDATE user SET contactDetail = %s WHERE id = %s", (new_contact_detail, user_id))
-    connection.commit()
-
-try:
-    # Connect to the database
-    connection = mysql.connector.connect(
-        host=db_host,
-        database=db_name,
-        user=db_username,
-        password=db_password
-    )
-    if connection.is_connected():
+# Main function
+def main():
+    connection = connect_to_database()
+    if connection:
         cursor = connection.cursor()
 
         # Display the user table
-        display_users(cursor)
+        display_user_table(cursor)
 
-        # Prompt for username
+        # Prompt user for a name
         print("Enter the username:")
-        name = input()
+        user_input = input()
+        
+        # Update contact details for the given name
+        update_contact_details(cursor, connection, user_input)
 
-        # Check if the user exists
-        user = get_user(cursor, name)
-        if user:
-            # Display user details
-            display_user_details(user)
-            
-            new_contact_detail = input()
-            update_contact_detail(cursor, connection, user[0], new_contact_detail)
-            
-            # Display the updated user details
-            updated_user = get_user(cursor, name)
-            display_user_details(updated_user)
-        else:
-            print("No such user is present")
-
-except mysql.connector.Error as error:
-    print(f"Error: {error}")
-finally:
-    if connection.is_connected():
         cursor.close()
         connection.close()
+
+if __name__ == "__main__":
+    main()

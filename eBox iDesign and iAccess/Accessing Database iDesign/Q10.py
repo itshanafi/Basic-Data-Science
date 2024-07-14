@@ -38,72 +38,84 @@
 # +---------+---------------------+---------------------+---------------+
 
 import mysql.connector
-from prettytable import PrettyTable
 import configparser
+from prettytable import PrettyTable
+from mysql.connector import Error
 
-# Function to fetch and display summary of ticket bookings
-def generate_ticket_summary():
+# Read database configuration from properties file
+config = configparser.RawConfigParser()
+config.read('mysql.properties')
+dburl = config.get('DatabaseSection', 'db.host')
+dbname = config.get('DatabaseSection', 'db.schema')
+username = config.get('DatabaseSection', 'db.username')
+password = config.get('DatabaseSection', 'db.password')
+port = config.get('DatabaseSection', 'db.port')
+
+# Function to connect to the MySQL database
+def connect_to_database():
     try:
-        # Read database configuration from properties file
-        config = configparser.RawConfigParser()
-        config.read('mysql.properties')
-        dburl = config.get('DatabaseSection', 'db.host')
-        dbname = config.get('DatabaseSection', 'db.schema')
-        username = config.get('DatabaseSection', 'db.username')
-        password = config.get('DatabaseSection', 'db.password')
-        port = config.get('DatabaseSection', 'db.port')
-
-        # Connect to the MySQL database
-        conn = mysql.connector.connect(
+        connection = mysql.connector.connect(
             host=dburl,
             database=dbname,
             user=username,
             password=password,
             port=port
         )
+        if connection.is_connected():
+            return connection
+    except Error as e:
+        print(f"Error while connecting to MySQL: {e}")
+        return None
 
-        if conn.is_connected():
-            cursor = conn.cursor()
+# Function to generate a summary of the tables
+def generate_summary(cursor):
+    query = """
+    SELECT 
+        se.name AS event_name,
+        ses.id AS show_id,
+        ses.start_time,
+        ses.end_time,
+        CAST(COALESCE(SUM(tb.no_of_seats), 0) AS UNSIGNED) AS total_seats_booked
+    FROM 
+        stage_event se
+    INNER JOIN 
+        stage_event_show ses ON se.id = ses.stage_event_id
+    LEFT JOIN 
+        ticket_booking tb ON ses.id = tb.stage_event_show_id
+    GROUP BY 
+        se.name, ses.id, ses.start_time, ses.end_time
+    ORDER BY 
+        se.name, ses.start_time;
+    """
+    cursor.execute(query)
+    records = cursor.fetchall()
+    
+    if records:
+        current_event = None
+        for row in records:
+            event_name = row[0]
+            if current_event != event_name:
+                if current_event is not None:
+                    print(table)
+                print(event_name)
+                table = PrettyTable(["Show Id", "Starting time", "Ending time", "Ticket booked"])
+                current_event = event_name
+            table.add_row(row[1:])
+        print(table)  # Print the last event table
+    else:
+        print("No records found.")
 
-            # Query to fetch summary of ticket bookings for each show
-            query = """
-                    SELECT ss.show_id, se.starting_time, se.ending_time, SUM(tb.ticket_count) AS tickets_booked
-                    FROM stage_event_show ss
-                    JOIN stage_event se ON ss.event_id = se.id
-                    LEFT JOIN (
-                        SELECT show_id, COUNT(*) AS ticket_count
-                        FROM ticket_booking
-                        GROUP BY show_id
-                    ) tb ON ss.show_id = tb.show_id
-                    GROUP BY ss.show_id
-                    ORDER BY ss.show_id
-                    """
-            cursor.execute(query)
-            records = cursor.fetchall()
+# Main function
+def main():
+    connection = connect_to_database()
+    if connection:
+        cursor = connection.cursor()
 
-            # Display results using PrettyTable
-            if records:
-                x = PrettyTable()
-                x.field_names = ["Show Id", "Starting time", "Ending time", "Ticket booked"]
-                for record in records:
-                    x.add_row(record)
-                print(x)
-            else:
-                print("No ticket bookings found.")
+        # Generate and display the summary
+        generate_summary(cursor)
 
-    except mysql.connector.Error as error:
-        print("Error while connecting to MySQL", error)
-    finally:
-        if conn.is_connected():
-            cursor.close()
-            conn.close()
+        cursor.close()
+        connection.close()
 
-# Main program
 if __name__ == "__main__":
-    try:
-        generate_ticket_summary()
-
-    except KeyboardInterrupt:
-        print("\nProgram terminated by user.")
-    except Exception as e:
-        print("Error:", e)
+    main()

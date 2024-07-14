@@ -90,105 +90,102 @@
 
 import mysql.connector
 import configparser
-import sys
-from mysql.connector import Error
 from prettytable import PrettyTable
+from mysql.connector import Error
 
-# Reading database configuration from 'mysql.properties' file
+# Read database configuration from properties file
 config = configparser.RawConfigParser()
 config.read('mysql.properties')
-
 dburl = config.get('DatabaseSection', 'db.host')
 dbname = config.get('DatabaseSection', 'db.schema')
 username = config.get('DatabaseSection', 'db.username')
 password = config.get('DatabaseSection', 'db.password')
 port = config.get('DatabaseSection', 'db.port')
 
-def insert_item_type(cursor, item_type_name, deposit, cost_per_day):
+# Function to connect to the MySQL database
+def connect_to_database():
+    try:
+        connection = mysql.connector.connect(
+            host=dburl,
+            database=dbname,
+            user=username,
+            password=password,
+            port=port
+        )
+        if connection.is_connected():
+            return connection
+    except Error as e:
+        print(f"Error while connecting to MySQL: {e}")
+        return None
+
+# Function to insert a new item type
+def insert_item_type(cursor, item_type):
     query = "INSERT INTO item_type (item_type_name, deposit, cost_per_day) VALUES (%s, %s, %s)"
-    cursor.execute(query, (item_type_name, deposit, cost_per_day))
+    cursor.execute(query, item_type)
 
-def insert_item_details(cursor, id, item_name, vendor_name, item_type_name, deposit, cost_per_day):
+# Function to insert a new item detail
+def insert_item_detail(cursor, item_detail):
     query = "INSERT INTO item_details (id, item_name, vendor_name, item_type_name, deposit, cost_per_day) VALUES (%s, %s, %s, %s, %s, %s)"
-    cursor.execute(query, (id, item_name, vendor_name, item_type_name, deposit, cost_per_day))
+    cursor.execute(query, item_detail)
 
-def display_table(cursor, table_name, fields):
-    query = f"SELECT {', '.join(fields)} FROM {table_name}"
+# Function to fetch and display details from item_type table
+def display_item_types(cursor):
+    query = "SELECT * FROM item_type"
     cursor.execute(query)
-    rows = cursor.fetchall()
-    
-    table = PrettyTable()
-    table.field_names = fields
-    
-    for row in rows:
+    records = cursor.fetchall()
+    table = PrettyTable(["ItemType name", "Deposit", "Cost per day"])
+    for row in records:
         table.add_row(row)
-    
     print(table)
 
-try:
-    # Establishing the connection to the database
-    connection = mysql.connector.connect(
-        host=dburl,
-        database=dbname,
-        user=username,
-        password=password,
-        port=port
-    )
-    
-    if connection.is_connected():
+# Function to fetch and display details from item_details table
+def display_item_details(cursor):
+    query = "SELECT * FROM item_details"
+    cursor.execute(query)
+    records = cursor.fetchall()
+    table = PrettyTable(["Id", "Item name", "Vendor name", "ItemType name", "Deposit", "Cost per day"])
+    for row in records:
+        table.add_row(row)
+    print(table)
+
+# Main function
+def main():
+    connection = connect_to_database()
+    if connection:
         cursor = connection.cursor()
         
-        # Displaying the current item_type table
-        display_table(cursor, "item_type", ["item_type_name", "deposit", "cost_per_day"])
+        # Display current item types
+        display_item_types(cursor)
+
+        # Ask the user if they want to add new item types
+        print("Do you want to add new ItemType? (Y/N)")
+        add_item_type = input()
+        if add_item_type.upper() == 'Y':
+            print("Enter number of itemtype details")
+            num_item_types = int(input())
+            for i in range(num_item_types):
+                print("Enter itemtype {i+1} details in CSV format")
+                item_type_details = input()
+                item_type = tuple(item_type_details.split(','))
+                insert_item_type(cursor, item_type)
         
-        # Asking user if they want to add new ItemTypes
-        while True:
-            print("Do you want to add new ItemType? (Y/N)")
-            add_item_type = input().strip().upper()
-            if add_item_type == 'N':
-                break
-            elif add_item_type == 'Y':
-                print("Enter number of itemtype details")
-                num_item_types = int(input().strip())
-                for i in range(num_item_types):
-                    print(f"Enter itemtype {i + 1} details in CSV format (item_type_name, deposit, cost_per_day):")
-                    item_type_details = input().split(',')
-                    item_type_name = item_type_details[0].strip()
-                    deposit = float(item_type_details[1].strip())
-                    cost_per_day = float(item_type_details[2].strip())
-                    insert_item_type(cursor, item_type_name, deposit, cost_per_day)
-            else:
-                print("Invalid input. Please enter 'Y' or 'N'.")
-        
-        connection.commit()
-        
-        # Displaying the updated item_type table
-        display_table(cursor, "item_type", ["item_type_name", "deposit", "cost_per_day"])
-        
-        # Getting item details from the user
+        # Ask the user how many item details they want to add
         print("Enter number of item details")
-        num_items = int(input().strip())
-        for i in range(num_items):
-            print(f"Enter the item {i + 1} details in CSV format (id, item_name, vendor_name, item_type_name, deposit, cost_per_day):")
-            item_details = input().split(',')
-            id = int(item_details[0].strip())
-            item_name = item_details[1].strip()
-            vendor_name = item_details[2].strip()
-            item_type_name = item_details[3].strip()
-            deposit = float(item_details[4].strip())
-            cost_per_day = float(item_details[5].strip())
-            insert_item_details(cursor, id, item_name, vendor_name, item_type_name, deposit, cost_per_day)
+        num_item_details = int(input())
+        if num_item_details > 0:
+            for i in range(num_item_details):
+                print("Enter the item {i+1} details in CSV format")
+                item_details_str = input()
+                item_detail = tuple(item_details_str.split(','))
+                insert_item_detail(cursor, item_detail)
+
+            connection.commit()
         
-        connection.commit()
-        
-        # Displaying the updated item_details table
-        display_table(cursor, "item_details", ["id", "item_name", "vendor_name", "item_type_name", "deposit", "cost_per_day"])
-        
-except Error as e:
-    print(f"Error: {e}")
-    sys.exit(1)
-finally:
-    # Closing the database connection
-    if connection.is_connected():
+        # Display updated item details
+        display_item_details(cursor)
+
         cursor.close()
         connection.close()
+
+if __name__ == "__main__":
+    main()

@@ -28,76 +28,78 @@
 # +------------------+-----------------+------------+
 
 import mysql.connector
-from prettytable import PrettyTable
-
-# Function to connect to MySQL database
-import mysql.connector
-from prettytable import PrettyTable
 import configparser
+from prettytable import PrettyTable
+from mysql.connector import Error
 
-# Function to fetch stall details for a given exhibition name
-def fetch_stalls_for_exhibition(exhibition_name):
+# Read database configuration from properties file
+config = configparser.RawConfigParser()
+config.read('mysql.properties')
+dburl = config.get('DatabaseSection', 'db.host')
+dbname = config.get('DatabaseSection', 'db.schema')
+username = config.get('DatabaseSection', 'db.username')
+password = config.get('DatabaseSection', 'db.password')
+port = config.get('DatabaseSection', 'db.port')
+
+# Function to connect to the MySQL database
+def connect_to_database():
     try:
-        # Read database configuration from properties file
-        config = configparser.RawConfigParser()
-        config.read('mysql.properties')
-        dburl = config.get('DatabaseSection', 'db.host')
-        dbname = config.get('DatabaseSection', 'db.schema')
-        username = config.get('DatabaseSection', 'db.username')
-        password = config.get('DatabaseSection', 'db.password')
-        port = config.get('DatabaseSection', 'db.port')
-
-        # Connect to the MySQL database
-        conn = mysql.connector.connect(
+        connection = mysql.connector.connect(
             host=dburl,
             database=dbname,
             user=username,
             password=password,
             port=port
         )
+        if connection.is_connected():
+            return connection
+    except Error as e:
+        print(f"Error while connecting to MySQL: {e}")
+        return None
 
-        if conn.is_connected():
-            cursor = conn.cursor()
+# Function to check if an exhibition exists
+def exhibition_exists(cursor, exhibition_name):
+    query = "SELECT COUNT(*) FROM exhibition WHERE name = %s"
+    cursor.execute(query, (exhibition_name,))
+    return cursor.fetchone()[0] > 0
 
-            # Prepare SQL query to fetch stalls for the given exhibition name
-            query = """
-                    SELECT s.stall_name, s.detail, s.owner_name
-                    FROM stall s
-                    JOIN exhibition e ON s.exhibition_id = e.id
-                    WHERE e.name = %s
-                    """
-            cursor.execute(query, (exhibition_name,))
-            records = cursor.fetchall()
+# Function to fetch and display stalls for a given exhibition name
+def display_stalls_for_exhibition(cursor, exhibition_name):
+    query = """
+    SELECT s.stall_name, s.detail, s.owner_name
+    FROM stall s
+    INNER JOIN exhibition e ON s.exhibition_id = e.id
+    WHERE e.name = %s
+    """
+    cursor.execute(query, (exhibition_name,))
+    records = cursor.fetchall()
+    
+    if records:
+        table = PrettyTable(["Stall Name", "Detail", "Owner Name"])
+        for row in records:
+            table.add_row(row)
+        print(table)
+    else:
+        print(f"No stalls found for exhibition: {exhibition_name}")
 
-            # Display results using PrettyTable
-            if records:
-                x = PrettyTable()
-                x.field_names = ["Stall Name", "Detail", "Owner Name"]
-                for record in records:
-                    x.add_row(record)
-                print(x)
-            else:
-                print("No stalls found for the exhibition:", exhibition_name)
+# Main function
+def main():
+    connection = connect_to_database()
+    if connection:
+        cursor = connection.cursor()
 
-    except mysql.connector.Error as error:
-        print("Error while connecting to MySQL", error)
-    finally:
-        if conn.is_connected():
-            cursor.close()
-            conn.close()
-
-# Main program
-if __name__ == "__main__":
-    try:
+        print("Enter the exhibition name:")
         while True:
-            exhibition_name = input("Enter the exhibition name: ").strip()
-            if exhibition_name.lower().startswith("exhibition"):
-                fetch_stalls_for_exhibition(exhibition_name)
+            
+            exhibition_name = input()
+            if exhibition_exists(cursor, exhibition_name):
                 break
-            else:
-                print("Enter the correct exhibition name:")
+            print("Enter the correct exhibition name:")
 
-    except KeyboardInterrupt:
-        print("\nProgram terminated by user.")
-    except Exception as e:
-        print("Error:", e)
+        display_stalls_for_exhibition(cursor, exhibition_name)
+
+        cursor.close()
+        connection.close()
+
+if __name__ == "__main__":
+    main()
